@@ -1,0 +1,137 @@
+* {
+  margin: 0%;
+  padding: 0%;
+  box-sizing: border-box;
+}
+
+.App {
+  text-align: center;
+  background-position: center;
+  background-size: cover;
+  background-image: url("../public/background.jpg");
+
+
+  .login-screen-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 100vh;
+
+    background-color: rgba(0, 0, 0, .7);
+
+    .login-wrapper {
+      position: relative;
+      margin-top: 15px !important;
+      text-align: center;
+      padding: 30px 60px;
+      background: rgba(255, 255, 255, 0.5);
+      margin: 0 auto;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      display: inline-block;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      input {
+        background-color: -internal-light-dark(rgb(232, 240, 254), rgba(70, 90, 126, 0.4));
+        border-radius: 0px;
+        border: none;
+        margin: 15px;
+        padding: 5px 10px;
+        font-size: large;
+        outline: none;
+      }
+
+      button {
+        background: #1c69d4;
+        color: #fff;
+        padding: 13px 25px;
+        border: 0;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+        width: 100%;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: green;
+        transition: all ease-in-out 0.3s;
+      }
+
+      .required {
+        display: none;
+      }
+
+      .required__visible {
+        color: green;
+      }
+    }
+  }
+
+  .logo-piece {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    margin: 15px;
+    right: 0;
+    padding: 5px;
+    left: auto;
+
+    img {
+      height: 180px;
+      width: 260px;
+    }
+
+    button{
+      margin-top: 5px;
+      background-color: rgba(255, 255, 255, 0.5);
+      color: #000000;
+      padding: 13px 25px;
+      border: 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+
+    }
+  }
+
+  .table-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 100vh;
+
+    background-color: rgba(0, 0, 0, .7);
+
+    .pagination-wrapper{
+      display: flex;
+      background-color: #fff;
+      justify-content: space-between;
+      width: 95%;
+
+      font-size: large;
+
+      button{
+        border: solid 1px #DEDEDE;
+      }
+    }
+  }
+
+  h1,
+  h3 {
+    color: aliceblue;
+  }
+
+
+}
