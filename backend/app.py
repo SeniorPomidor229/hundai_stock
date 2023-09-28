@@ -3,21 +3,22 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 from datetime import datetime
 import pandas as pd
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-import tempfile
+from io import BytesIO
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
-    allow_methods=["*"],  
-    allow_headers=["*"],  
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 security = HTTPBasic()
+
 
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = "admin"
@@ -32,9 +33,11 @@ def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
 
     return credentials.username
 
-client = MongoClient("mongodb://localhost:27017")
+
+client = MongoClient("mongodb://192.168.31.27:27017")
 db = client["hundai"]
 collection = db["items"]
+
 
 class ItemBase(BaseModel):
     N: str
@@ -90,8 +93,10 @@ class ItemBase(BaseModel):
     class Config:
         protected_namespaces = ()
 
+
 class ItemCreate(ItemBase):
     pass
+
 
 class Item(ItemBase):
     _id: str
@@ -99,9 +104,11 @@ class Item(ItemBase):
     class Config:
         validate_default = True
 
+
 @app.get("/")
 async def check_auth(username: str = Depends(authenticate_user)):
     return True
+
 
 @app.post("/items/", response_model=Item)
 async def create_item(item: ItemCreate, username: str = Depends(authenticate_user)):
@@ -110,11 +117,13 @@ async def create_item(item: ItemCreate, username: str = Depends(authenticate_use
     item = Item(id=str(result.inserted_id), **item_dict)
     return item
 
+
 @app.get("/items/", response_model=dict)
-async def list_items(skip: int = Query(0, description="Skip the first N items"), 
-                     limit: int = Query(10, description="Limit the number of items returned"),
+async def list_items(skip: int = Query(0, description="Skip the first N items"),
+                     limit: int = Query(
+                         10, description="Limit the number of items returned"),
                      username: str = Depends(authenticate_user)):
-    total_count = collection.count_documents({})  
+    total_count = collection.count_documents({})
     items = collection.find().skip(skip).limit(limit)
     item_list = []
     for item in items:
@@ -125,14 +134,28 @@ async def list_items(skip: int = Query(0, description="Skip the first N items"),
         "items": item_list,
     }
 
+
 @app.get("/export/items/")
 async def export_items(username: str = Depends(authenticate_user)):
+
+    response_headers = {
+        "Content-Disposition": f"attachment; filename=items",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
     items = collection.find()
     item_list = [item for item in items if '_id' in item]
+
     df = pd.DataFrame(item_list)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as temp_xlsx:
-        df.to_excel(temp_xlsx.name, index=False, engine='openpyxl')
-    return FileResponse(temp_xlsx.name, filename="items.xlsx")
+    excel_writer = BytesIO()
+
+    with pd.ExcelWriter(excel_writer, engine="openpyxl") as writer:
+            df.to_excel(writer, sheet_name="data")
+
+    excel_content = excel_writer.getvalue()
+    excel_writer.close()
+    return Response(content=excel_content, headers=response_headers)
+
 
 @app.put("/items/{N}", response_model=Item)
 async def update_item(N: str, item: ItemCreate, username: str = Depends(authenticate_user)):
@@ -143,6 +166,7 @@ async def update_item(N: str, item: ItemCreate, username: str = Depends(authenti
     collection.update_one({"N": N}, {"$set": item_dict})
     updated_item = Item(id=N, **item_dict)
     return updated_item
+
 
 @app.delete("/items/{N}", response_model=Item)
 async def delete_item(N: str, username: str = Depends(authenticate_user)):

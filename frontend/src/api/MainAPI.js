@@ -19,14 +19,18 @@ export const MainAPI = {
     },
     async SetItem(body) {
         return await instanse
-            .post(`items/`, body)
+            .post(`items/`, body, {
+                headers: { "Authorization": `Basic ${localStorage.getItem("auth")}` }
+            })
             .then((res) => {
                 return res.data;
             })
     },
     async Export() {
         return await instanse
-            .get(`export/items/`)
+            .get(`export/items/`, {
+                headers: { "Authorization": `Basic ${localStorage.getItem("auth")}`, responseType: "blob" },
+            })
             .then((res) => {
                 return res.data;
             })
