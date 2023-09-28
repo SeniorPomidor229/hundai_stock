@@ -1,0 +1,27 @@
+version: '3'
+services:
+  frontend-app:
+    build: frontend/
+    ports:
+      - "3000:3000"
+    networks:
+      - mynetwork
+
+  backend-app:
+    build: backend/
+    ports:
+      - "8000:8000"
+    networks:
+      - mynetwork
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
