@@ -1,5 +1,5 @@
-docker-compose up -d
-
+docker-compose up -d    |
+-------------------------
 cd frontend/
 npm i
 npm start
